@@ -1,0 +1,40 @@
+services:
+  webapi:
+    image: ${DOCKER_REGISTRY-}webapi
+    build:
+      context: .
+      dockerfile: webApi/Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - DB_CONNECTION_STRING=${db_connection_string}
+    networks:
+      - my-network
+    restart: 
+      on-failure
+
+  db:
+    container_name: products_db
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: always
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: ${sa_password}
+    ports:
+      - 1433:1433
+    volumes: 
+      - products-volume:/var/opt/mssql
+    networks:
+      - my-network
+
+networks:
+  my-network:
+
+volumes:
+  products-volume:
+
+
